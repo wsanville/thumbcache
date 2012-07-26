@@ -33,6 +33,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ public class DiskLruCache {
     private static final int MAX_REMOVALS = 4;
     private static final int INITIAL_CAPACITY = 32;
     private static final float LOAD_FACTOR = 0.75f;
+    private static final String DEFAULT_URL_ENCODING = "UTF-8";
 
     private final File mCacheDir;
     private int cacheSize = 0;
@@ -85,7 +87,7 @@ public class DiskLruCache {
      */
     public static DiskLruCache openCache(Context context, File cacheDir, long maxByteSize) {
         if (!cacheDir.exists()) {
-            cacheDir.mkdir();
+            cacheDir.mkdirs();
         }
 
         if (cacheDir.isDirectory() && cacheDir.canWrite()
@@ -107,6 +109,42 @@ public class DiskLruCache {
     private DiskLruCache(File cacheDir, long maxByteSize) {
         mCacheDir = cacheDir;
         maxCacheByteSize = maxByteSize;
+
+        //When the constructor is called, we want to repopulate the map from the filesystem.
+        repopulateFromDisk();
+    }
+
+    /**
+     * Puts entries in the map of URL -> file path based off of what is on disk.
+     */
+    private void repopulateFromDisk()
+    {
+        try
+        {
+            synchronized (mLinkedHashMap)
+            {
+                for (File file : mCacheDir.listFiles(cacheFileFilter))
+                {
+                    final String path = mCacheDir.getPath() + File.separator + file.getName();
+                    final String encoded = file.getName().substring(CACHE_FILENAME_PREFIX.length());
+                    try
+                    {
+                        final String key = URLDecoder.decode(encoded, DEFAULT_URL_ENCODING);
+                        put(key, path);
+                    }
+                    catch (UnsupportedEncodingException e)
+                    {
+                        Log.e(TAG, "repopulateFromDisk", e);
+                    }
+                }
+                //We also want to make sure the directory is not over the given file size.
+                flushCache();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "repopulateFromDisk", e);
+        }
     }
 
     /**
@@ -283,7 +321,7 @@ public class DiskLruCache {
             // Use URLEncoder to ensure we have a valid filename, a tad hacky but it will do for
             // this example
             return cacheDir.getAbsolutePath() + File.separator +
-                    CACHE_FILENAME_PREFIX + URLEncoder.encode(key.replace("*", ""), "UTF-8");
+                    CACHE_FILENAME_PREFIX + URLEncoder.encode(key.replace("*", ""), DEFAULT_URL_ENCODING);
         } catch (final UnsupportedEncodingException e) {
             Log.e(TAG, "createFilePath - " + e);
         }

@@ -40,7 +40,6 @@ import java.lang.ref.WeakReference;
 public abstract class ImageWorker {
     private static final String TAG = "ImageWorker";
 
-
     private ImageCache mImageCache;
     private Bitmap mLoadingBitmap;
     private boolean mFadeInBitmap = true;
@@ -158,6 +157,24 @@ public abstract class ImageWorker {
     }
 
     /**
+     * Set the simple adapter which holds the backing data.
+     *
+     * @param adapter
+     */
+    public void setAdapter(ImageWorkerAdapter adapter) {
+        mImageWorkerAdapter = adapter;
+    }
+
+    /**
+     * Get the current adapter.
+     *
+     * @return
+     */
+    public ImageWorkerAdapter getAdapter() {
+        return mImageWorkerAdapter;
+    }
+
+    /**
      * Subclasses should override this to define any processing or work that must happen to produce
      * the final bitmap. This will be executed in a background thread and be long running. For
      * example, you could resize a large bitmap here, or pull down an image from the network.
@@ -207,7 +224,7 @@ public abstract class ImageWorker {
      * @return Retrieve the currently active work task (if any) associated with this imageView.
      * null if there is no such task.
      */
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+    static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
             if (drawable instanceof AsyncDrawable) {
@@ -216,6 +233,12 @@ public abstract class ImageWorker {
             }
         }
         return null;
+    }
+
+    public static boolean isValidData(Object data, ImageView imageView)
+    {
+        BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+        return bitmapWorkerTask != null && bitmapWorkerTask.isSameData(data);
     }
 
     private BitmapWorkerTask makeTask(ImageView imageView, Object data, Handler handler)
@@ -229,13 +252,18 @@ public abstract class ImageWorker {
     /**
      * A FutureTask that is used for the underlying priority queue for implementing LIFO image loading.
      */
-    private class BitmapWorkerTask extends LIFOTask
+    class BitmapWorkerTask extends LIFOTask
     {
-        private Object data;
+        Object data;
         private BitmapWorkerTask(BitmapWorkerRunnable runnable, Object data)
         {
             super(runnable);
             this.data = data;
+        }
+
+        public boolean isSameData(Object data)
+        {
+            return this.data.equals(data);
         }
     }
 
@@ -313,7 +341,7 @@ public abstract class ImageWorker {
             if (bitmap != null && handler != null)
             {
                 Message message = handler.obtainMessage();
-                message.obj = new ImageLoadedHandler.Tuple(bitmap, getAttachedImageView());
+                message.obj = new ImageLoadedHandler.Tuple(data, bitmap, getAttachedImageView());
                 handler.sendMessage(message);
             }
         }
@@ -340,7 +368,7 @@ public abstract class ImageWorker {
      * required, and makes sure that only the last started worker process can bind its result,
      * independently of the finish order.
      */
-    private static class AsyncDrawable extends BitmapDrawable {
+    /*private static class AsyncDrawable extends BitmapDrawable {
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
         public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
@@ -353,26 +381,44 @@ public abstract class ImageWorker {
         public BitmapWorkerTask getBitmapWorkerTask() {
             return bitmapWorkerTaskReference.get();
         }
-    }
-
-
+    }*/
 
     /**
-     * Set the simple adapter which holds the backing data.
-     *
-     * @param adapter
+     * A custom Drawable that will be attached to the imageView while the work is in progress.
+     * Contains a reference to the actual worker task, so that it can be stopped if a new binding is
+     * required, and makes sure that only the last started worker process can bind its result,
+     * independently of the finish order.
      */
-    public void setAdapter(ImageWorkerAdapter adapter) {
-        mImageWorkerAdapter = adapter;
-    }
+    /*private static class AsyncDrawable extends BitmapDrawable {
+        private final SoftReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+            super(res, bitmap);
+
+            bitmapWorkerTaskReference =
+                new SoftReference<BitmapWorkerTask>(bitmapWorkerTask);
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return bitmapWorkerTaskReference.get();
+        }
+    }*/
 
     /**
-     * Get the current adapter.
-     *
-     * @return
+     * A very simple adapter for use with ImageWorker class and subclasses.
      */
-    public ImageWorkerAdapter getAdapter() {
-        return mImageWorkerAdapter;
+    private static class AsyncDrawable extends BitmapDrawable {
+        private BitmapWorkerTask bitmapWorkerTask;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+            super(res, bitmap);
+
+            this.bitmapWorkerTask = bitmapWorkerTask;
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return bitmapWorkerTask;
+        }
     }
 
     /**

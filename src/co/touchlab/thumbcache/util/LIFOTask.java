@@ -11,13 +11,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class LIFOTask extends FutureTask<Object> implements Comparable<LIFOTask>
 {
-    private static final AtomicLong counter = new AtomicLong(0);
+    //private static final AtomicLong counter = new AtomicLong(0);
+    private static long counter = 0;
     private final long priority;
 
     public LIFOTask(Runnable runnable)
     {
         super(runnable, new Object());
-        priority = counter.getAndIncrement();
+        priority = counter++;
     }
 
     public long getPriority()

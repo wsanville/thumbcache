@@ -36,9 +36,12 @@ public class ImageLoadedHandler extends Handler
         if (msg.obj instanceof Tuple)
         {
             Tuple t = (Tuple)msg.obj;
-            if (t.imageView != null && t.bitmap != null)
+
+            if (t.imageView != null && t.bitmap != null && t.data != null)
             {
-                setImageBitmap(t.imageView, t.bitmap);
+                //Make sure the Message given has data that matches what the ImageView expects
+                if (ImageWorker.isValidData(t.data, t.imageView))
+                    setImageBitmap(t.imageView, t.bitmap);
             }
             t.bitmap = null;
         }
@@ -75,13 +78,20 @@ public class ImageLoadedHandler extends Handler
 
     public static class Tuple
     {
+        private Object data;
         private Bitmap bitmap;
         private ImageView imageView;
 
-        public Tuple(Bitmap bitmap, ImageView imageView)
+        public Tuple(Object data, Bitmap bitmap, ImageView imageView)
         {
+            this.data = data;
             this.bitmap = bitmap;
             this.imageView = imageView;
         }
+    }
+
+    public static ImageLoadedHandler makeDefault(Context context, ImageWorker imageWorker)
+    {
+        return new ImageLoadedHandler(context, imageWorker.isFadeInBitmap(), imageWorker.getLoadingBitmap());
     }
 }
