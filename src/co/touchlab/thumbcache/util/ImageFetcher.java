@@ -137,16 +137,6 @@ public class ImageFetcher extends ImageResizer {
         HttpURLConnection urlConnection = null;
         BufferedOutputStream out = null;
 
-
-
-        /*** TESTING ONLY!!!! ***/
-        /*try
-        {
-            Thread.sleep(3000);
-        }
-        catch (InterruptedException e) { }*/
-
-
         try {
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
