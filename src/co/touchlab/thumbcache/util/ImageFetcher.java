@@ -39,8 +39,6 @@ import java.net.URL;
  */
 public class ImageFetcher extends ImageResizer {
     private static final String TAG = "ImageFetcher";
-    private static final int HTTP_CACHE_SIZE = 10 * 1024 * 1024; // 10MB
-    public static final String HTTP_CACHE_DIR = "http";
 
     /**
      * Initialize providing a target image width and height for the processing images.
@@ -97,7 +95,7 @@ public class ImageFetcher extends ImageResizer {
         }
 
         // Download a bitmap, write it to a file
-        final File f = downloadBitmap(mContext, data);
+        final File f = downloadBitmap(mContext, data, mImageCache.getDiskCache());
 
         if (f != null) {
             // Return a sampled down version
@@ -120,12 +118,7 @@ public class ImageFetcher extends ImageResizer {
      * @param urlString The URL to fetch
      * @return A File pointing to the fetched bitmap
      */
-    public static File downloadBitmap(Context context, String urlString) {
-        final File cacheDir = DiskLruCache.getDiskCacheDir(context, HTTP_CACHE_DIR);
-
-        final DiskLruCache cache =
-                DiskLruCache.openCache(context, cacheDir, HTTP_CACHE_SIZE);
-
+    public static File downloadBitmap(Context context, String urlString, DiskLruCache cache) {
         final File cacheFile = new File(cache.createFilePath(urlString));
 
         if (cache.containsKey(urlString)) {

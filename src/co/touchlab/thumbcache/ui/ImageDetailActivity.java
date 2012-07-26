@@ -129,7 +129,7 @@ public class ImageDetailActivity extends FragmentActivity implements OnClickList
                 final ImageCache cache = mImageWorker.getImageCache();
                 if (cache != null) {
                     mImageWorker.getImageCache().clearCaches();
-                    DiskLruCache.clearCache(this, ImageFetcher.HTTP_CACHE_DIR);
+                    //DiskLruCache.clearCache(this, ImageFetcher.HTTP_CACHE_DIR);
                     Toast.makeText(this, R.string.clear_cache_complete,
                             Toast.LENGTH_SHORT).show();
                 }

@@ -163,7 +163,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
                 final ImageCache cache = mImageWorker.getImageCache();
                 if (cache != null) {
                     mImageWorker.getImageCache().clearCaches();
-                    DiskLruCache.clearCache(getActivity(), ImageFetcher.HTTP_CACHE_DIR);
+                    //DiskLruCache.clearCache(getActivity(), ImageFetcher.HTTP_CACHE_DIR);
                     Toast.makeText(getActivity(), R.string.clear_cache_complete,
                             Toast.LENGTH_SHORT).show();
                 }

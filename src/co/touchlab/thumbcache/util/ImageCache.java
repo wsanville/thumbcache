@@ -192,6 +192,11 @@ public class ImageCache {
         return null;
     }
 
+    public DiskLruCache getDiskCache()
+    {
+        return mDiskCache;
+    }
+
     public void clearCaches() {
         mDiskCache.clearCache();
         mMemoryCache.evictAll();

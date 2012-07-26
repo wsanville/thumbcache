@@ -40,7 +40,7 @@ import java.lang.ref.WeakReference;
 public abstract class ImageWorker {
     private static final String TAG = "ImageWorker";
 
-    private ImageCache mImageCache;
+    protected ImageCache mImageCache;
     private Bitmap mLoadingBitmap;
     private boolean mFadeInBitmap = true;
     private volatile boolean mExitTasksEarly = false;
