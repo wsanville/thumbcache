@@ -116,6 +116,7 @@ public class ImageFetcher extends ImageResizer {
      *
      * @param context The context to use
      * @param urlString The URL to fetch
+     * @param cache The disk cache instance to get the download directory from.
      * @return A File pointing to the fetched bitmap
      */
     public static File downloadBitmap(Context context, String urlString, DiskLruCache cache) {
