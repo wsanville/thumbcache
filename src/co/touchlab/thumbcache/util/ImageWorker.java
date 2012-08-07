@@ -16,6 +16,7 @@
 
 package co.touchlab.thumbcache.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -45,11 +46,11 @@ public abstract class ImageWorker {
     private boolean mFadeInBitmap = true;
     private volatile boolean mExitTasksEarly = false;
 
-    protected Context mContext;
+    protected Activity mActivity;
     protected ImageWorkerAdapter mImageWorkerAdapter;
 
-    protected ImageWorker(Context context) {
-        mContext = context;
+    protected ImageWorker(Activity activity) {
+        mActivity = activity;
     }
 
     /**
@@ -76,7 +77,7 @@ public abstract class ImageWorker {
         } else if (cancelPotentialWork(data, imageView)) {
             final BitmapWorkerTask task = makeTask(imageView, data, handler);
             final AsyncDrawable asyncDrawable =
-                    new AsyncDrawable(mContext.getResources(), mLoadingBitmap, task);
+                    new AsyncDrawable(mActivity.getResources(), mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
             NetworkThreadPool.submitTask(task);
         }
@@ -117,7 +118,7 @@ public abstract class ImageWorker {
      * @param resId
      */
     public void setLoadingImage(int resId) {
-        mLoadingBitmap = BitmapFactory.decodeResource(mContext.getResources(), resId);
+        mLoadingBitmap = BitmapFactory.decodeResource(mActivity.getResources(), resId);
     }
 
     public Bitmap getLoadingBitmap()
@@ -340,9 +341,10 @@ public abstract class ImageWorker {
 
             if (bitmap != null && handler != null)
             {
-                Message message = handler.obtainMessage();
+                /*Message message = handler.obtainMessage();
                 message.obj = new ImageLoadedHandler.Tuple(data, bitmap, getAttachedImageView());
-                handler.sendMessage(message);
+                handler.sendMessage(message);*/
+                mActivity.runOnUiThread(new BitmapDisplayer(data, bitmap, getAttachedImageView()));
             }
         }
 
@@ -427,5 +429,31 @@ public abstract class ImageWorker {
     public static abstract class ImageWorkerAdapter {
         public abstract Object getItem(int num);
         public abstract int getSize();
+    }
+
+    private static class BitmapDisplayer implements Runnable
+    {
+        private Object data;
+        private Bitmap bitmap;
+        private ImageView imageView;
+
+        private BitmapDisplayer(Object data, Bitmap bitmap, ImageView imageView)
+        {
+            this.data = data;
+            this.bitmap = bitmap;
+            this.imageView = imageView;
+        }
+
+        @Override
+        public void run()
+        {
+            if (imageView != null && bitmap != null)
+            {
+                if (isValidData(data, imageView))
+                {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
+        }
     }
 }

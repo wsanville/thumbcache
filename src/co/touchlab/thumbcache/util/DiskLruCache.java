@@ -177,6 +177,11 @@ public class DiskLruCache {
         cacheByteSize += new File(file).length();
     }
 
+    void putFromFetcher(String url)
+    {
+        put(url, createFilePath(url));
+    }
+
     /**
      * Flush the cache, removing oldest entries if the total size is over the specified cache size.
      * Note that this isn't keeping track of stale files in the cache directory that aren't in the

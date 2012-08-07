@@ -16,6 +16,7 @@
 
 package co.touchlab.thumbcache.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -37,23 +38,23 @@ public class ImageResizer extends ImageWorker {
     /**
      * Initialize providing a single target image size (used for both width and height);
      *
-     * @param context
+     * @param activity
      * @param imageWidth
      * @param imageHeight
      */
-    public ImageResizer(Context context, int imageWidth, int imageHeight) {
-        super(context);
+    public ImageResizer(Activity activity, int imageWidth, int imageHeight) {
+        super(activity);
         setImageSize(imageWidth, imageHeight);
     }
 
     /**
      * Initialize providing a single target image size (used for both width and height);
      *
-     * @param context
+     * @param activity
      * @param imageSize
      */
-    public ImageResizer(Context context, int imageSize) {
-        super(context);
+    public ImageResizer(Activity activity, int imageSize) {
+        super(activity);
         setImageSize(imageSize);
     }
 
@@ -89,7 +90,7 @@ public class ImageResizer extends ImageWorker {
             Log.d(TAG, "processBitmap - " + resId);
         }
         return decodeSampledBitmapFromResource(
-                mContext.getResources(), resId, mImageWidth, mImageHeight);
+                mActivity.getResources(), resId, mImageWidth, mImageHeight);
     }
 
     @Override

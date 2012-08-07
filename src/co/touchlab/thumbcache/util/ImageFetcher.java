@@ -16,6 +16,7 @@
 
 package co.touchlab.thumbcache.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -43,24 +44,24 @@ public class ImageFetcher extends ImageResizer {
     /**
      * Initialize providing a target image width and height for the processing images.
      *
-     * @param context
+     * @param activity
      * @param imageWidth
      * @param imageHeight
      */
-    public ImageFetcher(Context context, int imageWidth, int imageHeight) {
-        super(context, imageWidth, imageHeight);
-        init(context);
+    public ImageFetcher(Activity activity, int imageWidth, int imageHeight) {
+        super(activity, imageWidth, imageHeight);
+        init(activity);
     }
 
     /**
      * Initialize providing a single target image size (used for both width and height);
      *
-     * @param context
+     * @param activity
      * @param imageSize
      */
-    public ImageFetcher(Context context, int imageSize) {
-        super(context, imageSize);
-        init(context);
+    public ImageFetcher(Activity activity, int imageSize) {
+        super(activity, imageSize);
+        init(activity);
     }
 
     private void init(Context context) {
@@ -95,7 +96,7 @@ public class ImageFetcher extends ImageResizer {
         }
 
         // Download a bitmap, write it to a file
-        final File f = downloadBitmap(mContext, data, mImageCache.getDiskCache());
+        final File f = downloadBitmap(mActivity, data, mImageCache.getDiskCache());
 
         if (f != null) {
             // Return a sampled down version
@@ -148,7 +149,7 @@ public class ImageFetcher extends ImageResizer {
             while ((b = in.read()) != -1) {
                 out.write(b);
             }
-
+            cache.putFromFetcher(urlString);
             return cacheFile;
 
         } catch (final IOException e) {

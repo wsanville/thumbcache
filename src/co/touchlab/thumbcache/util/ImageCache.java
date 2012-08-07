@@ -156,6 +156,7 @@ public class ImageCache {
 
         // Add to disk cache
         if (mDiskCache != null && !mDiskCache.containsKey(data)) {
+            Log.d("mDiskCache-put", "Should not be called");
             mDiskCache.put(data, bitmap);
         }
     }
