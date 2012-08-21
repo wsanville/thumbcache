@@ -255,7 +255,7 @@ public class Images {
     };
 
     /**
-     * Simple static adapter to use for image thumbnails.
+     * Another simple static adapter to use for image thumbnails, with a different set of images.
      */
     public final static ImageWorkerAdapter otherUrlAdapter = new ImageWorkerAdapter() {
         @Override

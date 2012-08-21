@@ -32,25 +32,26 @@
         android:description="@string/app_description"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:label="@string/app_name">
         <activity
             android:name=".ui.ImageDetailActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.FullScreen" >
+            android:theme="@style/AppTheme.FullScreen">
         </activity>
         <activity
             android:name=".ui.ImageGridActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:theme="@style/AppTheme">
+
         </activity>
         <activity
                 android:name=".ui.TestListActivity"
                 android:label="@string/app_name"
-                android:theme="@style/AppTheme.FullScreen" >
+                android:theme="@style/AppTheme.FullScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 </manifest>
