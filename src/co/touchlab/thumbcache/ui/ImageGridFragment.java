@@ -59,8 +59,6 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
     private ImageAdapter mAdapter;
     private ImageResizer mImageWorker;
 
-    private ImageLoadedHandler handler;
-
     /**
      * Empty constructor as per the Fragment documentation
      */
@@ -92,7 +90,6 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
         mImageWorker.setAdapter(Images.imageThumbWorkerUrlsAdapter);
         mImageWorker.setLoadingImage(R.drawable.empty_photo);
         mImageWorker.setImageCache(ImageCache.findOrCreateCache(getActivity(), cacheParams));
-        handler = new ImageLoadedHandler(getActivity(), mImageWorker.isFadeInBitmap(), mImageWorker.getLoadingBitmap());
     }
 
     @Override
@@ -267,7 +264,7 @@ public class ImageGridFragment extends Fragment implements AdapterView.OnItemCli
 
             // Finally load the image asynchronously into the ImageView, this also takes care of
             // setting a placeholder image while the background thread runs
-            mImageWorker.loadImage(position - mNumColumns, imageView, handler);
+            mImageWorker.loadImage(position - mNumColumns, imageView);
             return imageView;
         }
 

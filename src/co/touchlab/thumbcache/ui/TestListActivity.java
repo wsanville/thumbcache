@@ -9,7 +9,6 @@ import android.widget.ListView;
 import co.touchlab.thumbcache.R;
 import co.touchlab.thumbcache.provider.Images;
 import co.touchlab.thumbcache.util.ImageFetcher;
-import co.touchlab.thumbcache.util.ImageLoadedHandler;
 import co.touchlab.thumbcache.util.ImageWorker;
 
 /**
@@ -21,7 +20,6 @@ import co.touchlab.thumbcache.util.ImageWorker;
 public class TestListActivity extends Activity
 {
     private ImageWorker imageWorker;
-    private ImageLoadedHandler hander;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,8 +31,6 @@ public class TestListActivity extends Activity
         int size = (int)getResources().getDimension(R.dimen.list_image_size);
         imageWorker = new ImageFetcher(this, size);
         imageWorker.setLoadingImage(R.drawable.ic_launcher);
-        hander = new ImageLoadedHandler(this, false, imageWorker.getLoadingBitmap());
-
         imageWorker.setAdapter(Images.otherUrlAdapter);
     }
 

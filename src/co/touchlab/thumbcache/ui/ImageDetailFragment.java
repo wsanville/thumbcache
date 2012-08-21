@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import co.touchlab.thumbcache.R;
-import co.touchlab.thumbcache.util.ImageLoadedHandler;
 import co.touchlab.thumbcache.util.ImageWorker;
 import co.touchlab.thumbcache.util.Utils;
 
@@ -37,8 +36,6 @@ public class ImageDetailFragment extends Fragment {
     private int mImageNum;
     private ImageView mImageView;
     private ImageWorker mImageWorker;
-
-    private ImageLoadedHandler handler;
 
     /**
      * Factory method to generate a new instance of the fragment given an image number.
@@ -88,9 +85,7 @@ public class ImageDetailFragment extends Fragment {
         // cache can be used over all pages in the ViewPager
         if (ImageDetailActivity.class.isInstance(getActivity())) {
             mImageWorker = ((ImageDetailActivity) getActivity()).getImageWorker();
-            if (handler == null)
-                handler = new ImageLoadedHandler(getActivity(), mImageWorker.isFadeInBitmap(), mImageWorker.getLoadingBitmap());
-            mImageWorker.loadImage(mImageNum, mImageView, handler);
+            mImageWorker.loadImage(mImageNum, mImageView);
         }
 
         // Pass clicks on the ImageView to the parent activity to handle

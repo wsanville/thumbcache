@@ -17,7 +17,6 @@
 package co.touchlab.thumbcache.util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,11 +25,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
-
 import co.touchlab.thumbcache.BuildConfig;
 
 import java.lang.ref.WeakReference;
@@ -40,7 +36,8 @@ import java.lang.ref.WeakReference;
  * ImageView. It handles things like using a memory and disk cache, running the work in a background
  * thread and setting a placeholder image.
  */
-public abstract class ImageWorker {
+public abstract class ImageWorker
+{
     private static final String TAG = "ImageWorker";
 
     protected ImageCache mImageCache;
@@ -51,7 +48,8 @@ public abstract class ImageWorker {
     protected Activity mActivity;
     protected ImageWorkerAdapter mImageWorkerAdapter;
 
-    protected ImageWorker(Activity activity) {
+    protected ImageWorker(Activity activity)
+    {
         mActivity = activity;
     }
 
@@ -63,21 +61,26 @@ public abstract class ImageWorker {
      * is set immediately, otherwise an {@link AsyncTask} will be created to asynchronously load the
      * bitmap.
      *
-     * @param data The URL of the image to download.
+     * @param data      The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
      */
-    public void loadImage(Object data, ImageView imageView, Handler handler) {
+    public void loadImage(Object data, ImageView imageView)
+    {
         Bitmap bitmap = null;
 
-        if (mImageCache != null) {
+        if (mImageCache != null)
+        {
             bitmap = mImageCache.getBitmapFromMemCache(String.valueOf(data));
         }
 
-        if (bitmap != null) {
+        if (bitmap != null)
+        {
             // Bitmap found in memory cache
             imageView.setImageBitmap(bitmap);
-        } else if (cancelPotentialWork(data, imageView)) {
-            final BitmapWorkerTask task = makeTask(imageView, data, handler);
+        }
+        else if (cancelPotentialWork(data, imageView))
+        {
+            final BitmapWorkerTask task = makeTask(imageView, data);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mActivity.getResources(), mLoadingBitmap, task);
             imageView.setImageDrawable(asyncDrawable);
@@ -94,13 +97,17 @@ public abstract class ImageWorker {
      * bitmap. {@link ImageWorker#setAdapter(ImageWorkerAdapter)} must be called before using this
      * method.
      *
-     * @param num The URL of the image to download.
+     * @param num       The URL of the image to download.
      * @param imageView The ImageView to bind the downloaded image to.
      */
-    public void loadImage(int num, ImageView imageView, Handler handler) {
-        if (mImageWorkerAdapter != null) {
-            loadImage(mImageWorkerAdapter.getItem(num), imageView, handler);
-        } else {
+    public void loadImage(int num, ImageView imageView)
+    {
+        if (mImageWorkerAdapter != null)
+        {
+            loadImage(mImageWorkerAdapter.getItem(num), imageView);
+        }
+        else
+        {
             throw new NullPointerException("Data not set, must call setAdapter() first.");
         }
     }
@@ -110,7 +117,8 @@ public abstract class ImageWorker {
      *
      * @param bitmap
      */
-    public void setLoadingImage(Bitmap bitmap) {
+    public void setLoadingImage(Bitmap bitmap)
+    {
         mLoadingBitmap = bitmap;
     }
 
@@ -119,7 +127,8 @@ public abstract class ImageWorker {
      *
      * @param resId
      */
-    public void setLoadingImage(int resId) {
+    public void setLoadingImage(int resId)
+    {
         mLoadingBitmap = BitmapFactory.decodeResource(mActivity.getResources(), resId);
     }
 
@@ -133,11 +142,13 @@ public abstract class ImageWorker {
      *
      * @param cacheCallback
      */
-    public void setImageCache(ImageCache cacheCallback) {
+    public void setImageCache(ImageCache cacheCallback)
+    {
         mImageCache = cacheCallback;
     }
 
-    public ImageCache getImageCache() {
+    public ImageCache getImageCache()
+    {
         return mImageCache;
     }
 
@@ -146,7 +157,8 @@ public abstract class ImageWorker {
      *
      * @param fadeIn
      */
-    public void setImageFadeIn(boolean fadeIn) {
+    public void setImageFadeIn(boolean fadeIn)
+    {
         mFadeInBitmap = fadeIn;
     }
 
@@ -155,7 +167,8 @@ public abstract class ImageWorker {
         return mFadeInBitmap;
     }
 
-    public void setExitTasksEarly(boolean exitTasksEarly) {
+    public void setExitTasksEarly(boolean exitTasksEarly)
+    {
         mExitTasksEarly = exitTasksEarly;
     }
 
@@ -164,7 +177,8 @@ public abstract class ImageWorker {
      *
      * @param adapter
      */
-    public void setAdapter(ImageWorkerAdapter adapter) {
+    public void setAdapter(ImageWorkerAdapter adapter)
+    {
         mImageWorkerAdapter = adapter;
     }
 
@@ -173,7 +187,8 @@ public abstract class ImageWorker {
      *
      * @return
      */
-    public ImageWorkerAdapter getAdapter() {
+    public ImageWorkerAdapter getAdapter()
+    {
         return mImageWorkerAdapter;
     }
 
@@ -187,11 +202,14 @@ public abstract class ImageWorker {
      */
     protected abstract Bitmap processBitmap(Object data);
 
-    public static void cancelWork(ImageView imageView) {
+    public static void cancelWork(ImageView imageView)
+    {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-        if (bitmapWorkerTask != null) {
+        if (bitmapWorkerTask != null)
+        {
             bitmapWorkerTask.cancel(true);
-            if (BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG)
+            {
                 final Object bitmapData = bitmapWorkerTask.data;
                 Log.d(TAG, "cancelWork - cancelled work for " + bitmapData);
             }
@@ -204,17 +222,23 @@ public abstract class ImageWorker {
      * Returns false if the work in progress deals with the same data. The work is not
      * stopped in that case.
      */
-    public static boolean cancelPotentialWork(Object data, ImageView imageView) {
+    public static boolean cancelPotentialWork(Object data, ImageView imageView)
+    {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
-        if (bitmapWorkerTask != null) {
+        if (bitmapWorkerTask != null)
+        {
             final Object bitmapData = bitmapWorkerTask.data;
-            if (bitmapData == null || !bitmapData.equals(data)) {
+            if (bitmapData == null || !bitmapData.equals(data))
+            {
                 bitmapWorkerTask.cancel(false); //we will allow currently running tasks to continue
-                if (BuildConfig.DEBUG) {
+                if (BuildConfig.DEBUG)
+                {
                     Log.d(TAG, "cancelPotentialWork - cancelled work for " + data);
                 }
-            } else {
+            }
+            else
+            {
                 // The same work is already in progress.
                 return false;
             }
@@ -225,13 +249,16 @@ public abstract class ImageWorker {
     /**
      * @param imageView Any imageView
      * @return Retrieve the currently active work task (if any) associated with this imageView.
-     * null if there is no such task.
+     *         null if there is no such task.
      */
-    static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
+    static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView)
+    {
+        if (imageView != null)
+        {
             final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+            if (drawable instanceof AsyncDrawable)
+            {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable)drawable;
                 return asyncDrawable.getBitmapWorkerTask();
             }
         }
@@ -244,9 +271,9 @@ public abstract class ImageWorker {
         return bitmapWorkerTask != null && bitmapWorkerTask.isSameData(data);
     }
 
-    private BitmapWorkerTask makeTask(ImageView imageView, Object data, Handler handler)
+    private BitmapWorkerTask makeTask(ImageView imageView, Object data)
     {
-        BitmapWorkerRunnable runnable = new BitmapWorkerRunnable(imageView, data, handler);
+        BitmapWorkerRunnable runnable = new BitmapWorkerRunnable(imageView, data);
         BitmapWorkerTask task = new BitmapWorkerTask(runnable, data);
         runnable.setParentTask(task);
         return task;
@@ -258,6 +285,7 @@ public abstract class ImageWorker {
     class BitmapWorkerTask extends LIFOTask
     {
         Object data;
+
         private BitmapWorkerTask(BitmapWorkerRunnable runnable, Object data)
         {
             super(runnable);
@@ -277,13 +305,12 @@ public abstract class ImageWorker {
     {
         private Object data;
         private final WeakReference<ImageView> imageViewReference;
-        private final Handler handler;
         private BitmapWorkerTask parentTask;
 
-        public BitmapWorkerRunnable(ImageView imageView, Object data, Handler handler) {
+        public BitmapWorkerRunnable(ImageView imageView, Object data)
+        {
             imageViewReference = new WeakReference<ImageView>(imageView);
             this.data = data;
-            this.handler = handler;
         }
 
         public BitmapWorkerTask getParentTask()
@@ -315,7 +342,8 @@ public abstract class ImageWorker {
             // to this task and our "exit early" flag is not set then try and fetch the bitmap from
             // the cache
             if (mImageCache != null && !isCancelled() && getAttachedImageView() != null
-                    && !mExitTasksEarly) {
+                    && !mExitTasksEarly)
+            {
                 bitmap = mImageCache.getBitmapFromDiskCache(dataString);
             }
 
@@ -324,7 +352,8 @@ public abstract class ImageWorker {
             // bound back to this task and our "exit early" flag is not set, then call the main
             // process method (as implemented by a subclass)
             if (bitmap == null && !isCancelled() && getAttachedImageView() != null
-                    && !mExitTasksEarly) {
+                    && !mExitTasksEarly)
+            {
                 bitmap = processBitmap(data);
             }
 
@@ -332,7 +361,8 @@ public abstract class ImageWorker {
             // bitmap to the cache for future use. Note we don't check if the task was cancelled
             // here, if it was, and the thread is still running, we may as well add the processed
             // bitmap to our cache as it might be used again in the future
-            if (bitmap != null && mImageCache != null) {
+            if (bitmap != null && mImageCache != null)
+            {
                 mImageCache.addBitmapToCache(dataString, bitmap);
             }
 
@@ -341,13 +371,13 @@ public abstract class ImageWorker {
                 bitmap = null;
             }
 
-            if (bitmap != null && handler != null)
+            if (bitmap != null)
             {
-                BitmapRunnable runnable;
+                BitmapSetter runnable;
                 if (mFadeInBitmap)
-                    runnable = new FadeInBitmapRunnable(data, bitmap, getAttachedImageView(), mLoadingBitmap);
+                    runnable = new FadeInBitmapSetter(data, bitmap, getAttachedImageView(), mLoadingBitmap);
                 else
-                    runnable = new BitmapRunnable(data, bitmap, getAttachedImageView());
+                    runnable = new BitmapSetter(data, bitmap, getAttachedImageView());
 
                 mActivity.runOnUiThread(runnable);
             }
@@ -357,11 +387,13 @@ public abstract class ImageWorker {
          * Returns the ImageView associated with this task as long as the ImageView's task still
          * points to this task as well. Returns null otherwise.
          */
-        private ImageView getAttachedImageView() {
+        private ImageView getAttachedImageView()
+        {
             final ImageView imageView = imageViewReference.get();
             final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
-            if (getParentTask() == bitmapWorkerTask) {
+            if (getParentTask() == bitmapWorkerTask)
+            {
                 return imageView;
             }
 
@@ -372,27 +404,30 @@ public abstract class ImageWorker {
     /**
      * A very simple adapter for use with ImageWorker class and subclasses.
      */
-    private static class AsyncDrawable extends BitmapDrawable {
+    private static class AsyncDrawable extends BitmapDrawable
+    {
         private BitmapWorkerTask bitmapWorkerTask;
 
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask)
+        {
             super(res, bitmap);
 
             this.bitmapWorkerTask = bitmapWorkerTask;
         }
 
-        public BitmapWorkerTask getBitmapWorkerTask() {
+        public BitmapWorkerTask getBitmapWorkerTask()
+        {
             return bitmapWorkerTask;
         }
     }
 
-    private static class BitmapRunnable implements Runnable
+    private static class BitmapSetter implements Runnable
     {
         protected Object data;
         protected Bitmap bitmap;
         protected ImageView imageView;
 
-        private BitmapRunnable(Object data, Bitmap bitmap, ImageView imageView)
+        private BitmapSetter(Object data, Bitmap bitmap, ImageView imageView)
         {
             this.data = data;
             this.bitmap = bitmap;
@@ -420,12 +455,12 @@ public abstract class ImageWorker {
         }
     }
 
-    private static class FadeInBitmapRunnable extends BitmapRunnable
+    private static class FadeInBitmapSetter extends BitmapSetter
     {
         private static final int FADE_IN_TIME = 200;
         protected Bitmap loadingBitmap;
 
-        private FadeInBitmapRunnable(Object data, Bitmap bitmap, ImageView imageView, Bitmap loadingBitmap)
+        private FadeInBitmapSetter(Object data, Bitmap bitmap, ImageView imageView, Bitmap loadingBitmap)
         {
             super(data, bitmap, imageView);
             this.loadingBitmap = loadingBitmap;
@@ -453,8 +488,10 @@ public abstract class ImageWorker {
     /**
      * A very simple adapter for use with ImageWorker class and subclasses.
      */
-    public static abstract class ImageWorkerAdapter {
+    public static abstract class ImageWorkerAdapter
+    {
         public abstract Object getItem(int num);
+
         public abstract int getSize();
     }
 }
