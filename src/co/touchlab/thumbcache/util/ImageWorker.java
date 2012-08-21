@@ -365,48 +365,6 @@ public abstract class ImageWorker {
     }
 
     /**
-     * A custom Drawable that will be attached to the imageView while the work is in progress.
-     * Contains a reference to the actual worker task, so that it can be stopped if a new binding is
-     * required, and makes sure that only the last started worker process can bind its result,
-     * independently of the finish order.
-     */
-    /*private static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-
-            bitmapWorkerTaskReference =
-                new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }*/
-
-    /**
-     * A custom Drawable that will be attached to the imageView while the work is in progress.
-     * Contains a reference to the actual worker task, so that it can be stopped if a new binding is
-     * required, and makes sure that only the last started worker process can bind its result,
-     * independently of the finish order.
-     */
-    /*private static class AsyncDrawable extends BitmapDrawable {
-        private final SoftReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-
-            bitmapWorkerTaskReference =
-                new SoftReference<BitmapWorkerTask>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }*/
-
-    /**
      * A very simple adapter for use with ImageWorker class and subclasses.
      */
     private static class AsyncDrawable extends BitmapDrawable {
@@ -421,14 +379,6 @@ public abstract class ImageWorker {
         public BitmapWorkerTask getBitmapWorkerTask() {
             return bitmapWorkerTask;
         }
-    }
-
-    /**
-     * A very simple adapter for use with ImageWorker class and subclasses.
-     */
-    public static abstract class ImageWorkerAdapter {
-        public abstract Object getItem(int num);
-        public abstract int getSize();
     }
 
     private static class BitmapDisplayer implements Runnable
@@ -447,13 +397,24 @@ public abstract class ImageWorker {
         @Override
         public void run()
         {
-            if (imageView != null && bitmap != null)
+            if (imageView != null && bitmap != null && data != null)
             {
                 if (isValidData(data, imageView))
                 {
                     imageView.setImageBitmap(bitmap);
                 }
             }
+            imageView = null;
+            bitmap = null;
+            data = null;
         }
+    }
+
+    /**
+     * A very simple adapter for use with ImageWorker class and subclasses.
+     */
+    public static abstract class ImageWorkerAdapter {
+        public abstract Object getItem(int num);
+        public abstract int getSize();
     }
 }

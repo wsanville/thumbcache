@@ -17,8 +17,8 @@
 
 <resources>
 
-    <string name="app_name">BitmapFun</string>
-    <string name="app_description">This is a sample application for the Android Training class
+    <string name="app_name">BitmapFun Modified</string>
+    <string name="app_description">This is a modified version of the sample application for the Android Training class
         "Displaying Bitmaps Efficiently"
         (http://developer.android.com/training/displaying-bitmaps/display-bitmap.html). It is not
         designed to be a full reference application but to demonstrate the concepts discussed in

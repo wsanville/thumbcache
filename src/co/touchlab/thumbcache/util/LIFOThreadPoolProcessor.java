@@ -24,7 +24,7 @@ public class LIFOThreadPoolProcessor
 
     public LIFOThreadPoolProcessor(int threadCount)
     {
-        executor = new ThreadPoolExecutor(threadCount, threadCount * 2, 30, TimeUnit.SECONDS, opsToRun);
+        executor = new ThreadPoolExecutor(threadCount, threadCount * 2, 0, TimeUnit.SECONDS, opsToRun);
     }
 
     public Future<?> submitTask(LIFOTask task)
