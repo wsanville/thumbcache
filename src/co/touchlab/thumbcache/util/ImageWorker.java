@@ -22,7 +22,9 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -341,10 +343,13 @@ public abstract class ImageWorker {
 
             if (bitmap != null && handler != null)
             {
-                /*Message message = handler.obtainMessage();
-                message.obj = new ImageLoadedHandler.Tuple(data, bitmap, getAttachedImageView());
-                handler.sendMessage(message);*/
-                mActivity.runOnUiThread(new BitmapDisplayer(data, bitmap, getAttachedImageView()));
+                BitmapRunnable runnable;
+                if (mFadeInBitmap)
+                    runnable = new FadeInBitmapRunnable(data, bitmap, getAttachedImageView(), mLoadingBitmap);
+                else
+                    runnable = new BitmapRunnable(data, bitmap, getAttachedImageView());
+
+                mActivity.runOnUiThread(runnable);
             }
         }
 
@@ -381,13 +386,13 @@ public abstract class ImageWorker {
         }
     }
 
-    private static class BitmapDisplayer implements Runnable
+    private static class BitmapRunnable implements Runnable
     {
-        private Object data;
-        private Bitmap bitmap;
-        private ImageView imageView;
+        protected Object data;
+        protected Bitmap bitmap;
+        protected ImageView imageView;
 
-        private BitmapDisplayer(Object data, Bitmap bitmap, ImageView imageView)
+        private BitmapRunnable(Object data, Bitmap bitmap, ImageView imageView)
         {
             this.data = data;
             this.bitmap = bitmap;
@@ -401,12 +406,47 @@ public abstract class ImageWorker {
             {
                 if (isValidData(data, imageView))
                 {
-                    imageView.setImageBitmap(bitmap);
+                    setImageBitmap();
                 }
             }
             imageView = null;
             bitmap = null;
             data = null;
+        }
+
+        protected void setImageBitmap()
+        {
+            imageView.setImageBitmap(bitmap);
+        }
+    }
+
+    private static class FadeInBitmapRunnable extends BitmapRunnable
+    {
+        private static final int FADE_IN_TIME = 200;
+        protected Bitmap loadingBitmap;
+
+        private FadeInBitmapRunnable(Object data, Bitmap bitmap, ImageView imageView, Bitmap loadingBitmap)
+        {
+            super(data, bitmap, imageView);
+            this.loadingBitmap = loadingBitmap;
+        }
+
+        @Override
+        protected void setImageBitmap()
+        {
+            Resources resources = imageView.getContext().getResources();
+            // Transition drawable with a transparent drawable and the final bitmap
+            TransitionDrawable td =
+                    new TransitionDrawable(new Drawable[] {
+                            new ColorDrawable(android.R.color.transparent),
+                            new BitmapDrawable(resources, bitmap)
+                    });
+            // Set background to loading bitmap
+            imageView.setBackgroundDrawable(
+                    new BitmapDrawable(resources, loadingBitmap));
+
+            imageView.setImageDrawable(td);
+            td.startTransition(FADE_IN_TIME);
         }
     }
 
