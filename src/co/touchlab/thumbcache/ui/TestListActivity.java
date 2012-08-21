@@ -26,6 +26,7 @@ import co.touchlab.thumbcache.util.Utils;
 public class TestListActivity extends Activity
 {
     private static final String IMAGE_CACHE_DIR = "thumbs";
+    private ImageWorker imageWorker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,7 +36,7 @@ public class TestListActivity extends Activity
         ListView list = (ListView)findViewById(R.id.list);
 
         int size = (int)getResources().getDimension(R.dimen.list_image_size);
-        ImageWorker imageWorker = new ImageFetcher(this, size);
+        imageWorker = new ImageFetcher(this, size);
         imageWorker.setImageFadeIn(false);
         imageWorker.setLoadingImage(R.drawable.ic_launcher);
 
@@ -52,6 +53,20 @@ public class TestListActivity extends Activity
         imageWorker.setImageCache(new ImageCache(this, cacheParams));
 
         list.setAdapter(new TestAdapter(this, imageWorker));
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        imageWorker.setExitTasksEarly(true);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        imageWorker.setExitTasksEarly(false);
     }
 
     static class TestAdapter extends BaseAdapter

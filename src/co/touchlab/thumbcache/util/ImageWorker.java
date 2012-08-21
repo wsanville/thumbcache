@@ -271,6 +271,12 @@ public abstract class ImageWorker
         return bitmapWorkerTask != null && bitmapWorkerTask.isSameData(data);
     }
 
+    /**
+     * Static creator method for setting up a LIFOTask with a Runnable inside.
+     * @param imageView The ImageView to use when displaying the loaded image.
+     * @param data The URL to load.
+     * @return A fully baked LIFOTask.
+     */
     private BitmapWorkerTask makeTask(ImageView imageView, Object data)
     {
         BitmapWorkerRunnable runnable = new BitmapWorkerRunnable(imageView, data);
@@ -282,7 +288,7 @@ public abstract class ImageWorker
     /**
      * A FutureTask that is used for the underlying priority queue for implementing LIFO image loading.
      */
-    class BitmapWorkerTask extends LIFOTask
+    private class BitmapWorkerTask extends LIFOTask
     {
         Object data;
 
@@ -307,7 +313,7 @@ public abstract class ImageWorker
         private final WeakReference<ImageView> imageViewReference;
         private BitmapWorkerTask parentTask;
 
-        public BitmapWorkerRunnable(ImageView imageView, Object data)
+        private BitmapWorkerRunnable(ImageView imageView, Object data)
         {
             imageViewReference = new WeakReference<ImageView>(imageView);
             this.data = data;
