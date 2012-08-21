@@ -9,9 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * Time: 6:27 PM
  * A class for use with a priority queue that increases the priority as items are added.
  */
-public abstract class LIFOTask extends FutureTask<Object> implements Comparable<LIFOTask>
+public class LIFOTask extends FutureTask<Object> implements Comparable<LIFOTask>
 {
-    //private static final AtomicLong counter = new AtomicLong(0);
     private static long counter = 0;
     private final long priority;
 

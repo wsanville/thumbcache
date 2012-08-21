@@ -4,7 +4,7 @@ import java.util.concurrent.Future;
 
 public class NetworkThreadPool
 {
-    private static LIFOThreadPoolProcessor pool = new LIFOThreadPoolProcessor(2);
+    private static LIFOThreadPoolProcessor pool = new LIFOThreadPoolProcessor(3);
 
     public static Future<?> submitTask(LIFOTask task)
     {
