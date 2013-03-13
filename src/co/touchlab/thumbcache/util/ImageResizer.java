@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.util.Log;
 
 import co.touchlab.thumbcache.BuildConfig;
@@ -146,7 +148,35 @@ public class ImageResizer extends ImageWorker {
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(filename, options);
+        Bitmap bitmap = BitmapFactory.decodeFile(filename, options);
+        return scaleCenterCrop(bitmap, reqHeight, reqWidth);
+    }
+
+    private static Bitmap scaleCenterCrop(Bitmap source, int newHeight, int newWidth)
+    {
+        int sourceWidth = source.getWidth();
+        int sourceHeight = source.getHeight();
+
+        float xScale = (float) newWidth / sourceWidth;
+        float yScale = (float) newHeight / sourceHeight;
+        float scale = Math.max(xScale, yScale);
+
+        //get the resulting size after scaling
+        float scaledWidth = scale * sourceWidth;
+        float scaledHeight = scale * sourceHeight;
+
+        //figure out where we should translate to
+        float dx = (newWidth - scaledWidth) / 2;
+        float dy = (newHeight - scaledHeight) / 2;
+
+        Bitmap dest = Bitmap.createBitmap(newWidth, newHeight, source.getConfig());
+        Canvas canvas = new Canvas(dest);
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+        matrix.postTranslate(dx, dy);
+        canvas.drawBitmap(source, matrix, null);
+
+        return dest;
     }
 
     /**
